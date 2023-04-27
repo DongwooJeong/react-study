@@ -167,6 +167,94 @@
 ***
 3\) State
 ---
+### 3.0 Understanding State
+* state: 데이터가 저장되는 곳
+* 예시에서 counter를 state에 담을 수 있음
+* 기존 함수 부분을 다 지우고 새로 만들어보자
+    1. counter 만들기
+        + script 부분에 counter 변수 생성
+        + 콘테이너 안에 카운터 변수를 담을 텍스트 부분에 그냥 변수를 {} 안에 넣어서 표현하면 됨
+            * 변수를 연결
+    2. 함수를 만들기
+        + counter가 1씩 올라감
+        + eventlistener 없이, 예전에 배웠던 prop 사용
+            * button 부분에 함수 넣기
+                ```html
+                <button onClick={countUp}>Click me</button>
+                ```
+        + 아직 UI가 업데이트되지 않음
+            * console.log 해보면 counter는 증가 중
+            * rendering은 처음에 코드가 실행될 때 한번만 하고, 그 이후에 button이 클릭돼서 counter가 1씩 증가했을 때 Total clicks가 있는 부분에 업데이트(re-rendering)해주진 않음
+    3. 함수 안에 render하는 코드를 넣어주기
+        + 그럼 클릭할 때마다 countUp함수가 실행돼서 리렌더링 작업이 진행됨
+        + render하는 함수가 중복적으로 사용되기 때문에 함수를 따로 만들어주고, render함수가 필요한 곳에 넣어줌(두 군데)
+* 아직 더 쉬운 방법이 남아있음
+    - 값을 바꿀 때마다(counter가 올라갈 때마다) 다시 render해야 해서
+* vanilla.js와 react 파일이 다른 점
+    - chrome 개발자 도구 element에서 확인해보면 UI에서 바뀐 부분만 업데이트해줌
+        + react.js는 다른 부분(우리가 바꾼 부분)만 파악함(생성함)
+***
+### 3.1 setState part One
+* react.js 내에서 데이터를 저장하고 자동으로 리렌더링을 일으킬 수 있는 방법을 알아보자
+* 기존에 counter 변수를 생성해서 데이터를 담는 방법 말고, State를 사용해보자
+    - 컨테이너(App) 함수 안에 state 생성
+        ```js
+        const data = React.useState();
+        ```
+        + console.log해보면 [undefined, f]와 같은 array를 줌
+            * undefined: 데이터
+                - counter 변수
+                - useState(0); 처럼 초기값 부여 가능
+                    + 부여 안 하면 NaN 뜨더라
+            * f: data를 바꿀 때 사용하는 함수
+                - countUp 함수
+        + 배열에서 요소를 꺼내서 이름을 부여하는 shortcut을 배워보자
+            ```js
+            // 원래 방식
+            const food = ["tomato", "potato"];
+            const tomato = food[0];
+            const potato = food[1];
+            // shortcut
+            const [myFavFood, mySecondFavFood] = food;
+            ```
+***
+### 3.2 setState part Two
+* 이전 강의에 이어서 계속해보자
+* 왜 modifier가 필요할까?
+    - 매번 render를 할 필요가 없어짐
+* modifer를 활용해보자
+    ```js
+    const [counter, setCounter] = React.useState(0);
+    const countUp = () => {
+        setCounter(counter + 1);   
+    }
+    ```
+    1. counter의 초기값을 0으로 지정
+    2. countUp 함수 안에 modifier를 정의해줌
+        + modifier(setCounter)안에서 일어나는 일은 자동으로 리렌더링해줌
+        + modifier 함수 이름은 set + (앞에 변수 이름)으로 해줌
+
+
+***
+### 3.3 Recap
+* modifer로 state를 변경할 때 component 자체가 재생성됨
+    - 새로운 값을 가지고 re-render됨
+    - 데이터가 바뀔 때마다 component를 re-rendering하고 UI를 refresh함
+    - 하지만 react.js는 변경되는 부분만 바꿈
+    - **modifier 함수로 state를 바꿀 때, 컴포넌트 전체가 새로운 value로 재생성된다**
+        + state가 바뀔 때 re-rendering이 일어난다
+***
+### 3.4 State Functions
+* state 응용하기
+* state를 바꾸는 두 가지 방법
+    1. 직접 modifier 안에 새 값으로 설정
+    2. 지금 한 방식: 이전 값을 이용해서 현재 값을 계산하는 것
+        + 더 좋은 방식
+            * counter가 다른 곳에서도 변경될 수 있기 때문
+            ```js
+            setCounter((current) => current + 1);
+            ```
+            * current state를 보장해주기 때문에 더 안전한 방식
 ***
 4\) Props
 ---
