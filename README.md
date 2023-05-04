@@ -256,6 +256,97 @@
             ```
             * current state를 보장해주기 때문에 더 안전한 방식
 ***
+### 3.5 Inputs and State
+* unit conversion app 만들기
+    - 시간을 분으로 바꾸고 분을 시간으로 바꾸어보기
+    1. document div 변수 만드는 부분과 App 함수, 그리고 render하는 부분만 남긴다
+    2. JSX 스타일에 맞게 hours와 minutes를 넣을 input과 label을 만들어준다
+        1. input에 id를 줘서 label에서 for로 받을 수 있도록 만들어준다
+        2. 사실 이건 JSX에서는 틀린거임
+            * for는 javascript거임 JSX꺼가 아님
+            * for를 htmlFor로 바꾸어준다
+    3. minutes에 필요한 state를 만들어준다
+        + 아직 input의 value를 control할 수 없는 상태임 (uncontrolled)
+            * 일단 useState 만들어주고, input에 value(minutes)를 줌
+        + 사용자가 값을 입력할 때마다 업데이트시키기
+            * 새로운 함수 onChange를 만들고, input에 onChange를 새로 만들어주기
+    4. 입력값을 받아오기
+        + 이미 event.target.value에서 입력값을 갖고 오고 있음
+        + modifier로 입력값을 가져옴
+***
+### 3.6 State Practice part One
+* Recap
+    - 이벤트를 듣는다
+        + onChange={onChange}
+    - 이벤트가 발생하면 값을 업데이트해준다
+        + setMinutes(event.target.value);
+    - UI에 나타남
+        + value={minutes}
+* 계속 만들어보자
+    1. 했던 거 hours에도 해주기
+        + label과 input 다 div 안에 넣어주기
+    2. 시간을 분으로 바꾸는 공식 넣어주기
+        + value={minutes / 60}
+        + Math.round로 반올림해주기
+    3. reset 버튼 만들기
+        + 버튼을 하나 만들어준다
+        + onClick에 reset을 할 수 있도록 만들어준다
+        + 함수를 만들어준다
+            * setMinutes(0)
+    4. disabled를 넣어서 hours는 값을 입력하지 못하도록 만들어준다
+***
+### 3.7 State Practice part Two
+* Conversion Flip (분을 시로 바꾸는데에서 시를 분으로 바꾸는 상태로 바꾸기)
+    1. Flip용 버튼을 하나 만들어준다
+    2. Flip에 쓸 함수(onFlip)도 하나 만들어준다
+    3. 함수에 쓸 새로운 State를 만들어준다
+        + State의 초기값을 false로 만들어준다
+        + 함수를 실행하면 modifier(setFlipped)를 실행한다
+        + modifier는 flipped의 상태를 바꿔준다(!flipped) -  negation
+            * true -> false, false -> true
+            * 사실 이렇게 하면 안좋고, 배웠던 것처럼 current를 써보자
+                - (current) => !current
+    4. disabled에 boolean을 넣어주자
+        + hours와 minutes의 t/f 값이 반대로 가도록 설정
+            - disabled={flipped === false}
+    5. 아직 Hours에서 Minutes로 단위 변환이 안돼서 넣어보자
+        + onChange = {onChange}
+            * 이제 value를 넣을 수는 있는데, 입력한 값이 아니라 minutes에서 round한 값만 나옴
+        + ternary operator라는 걸 써보자
+            * in-line if문 같은 것
+            * value= {flipped ? minutes : Math.round(minutes/60)}
+            * Minutes에도 ternary operator를 써주자
+        + 헷갈리니까 minutes라는 이름을 amount로 바꿔주자
+    6. flip할 때마다 입력값이 같이 옮겨져서 reset도 동시에 해버리자
+***
+### 3.8 Recap
+* 추가 수정
+    + Flip 버튼을 좀 더 직관적으로 만들어보자
+        ```html
+        <button onClick={onFlip}>{flipped ? "Turn back" : "Flip"}</button>
+        ```
+***
+### 3.9 Final Practice and Recap
+* 시간 변환기에다가 거리 변환기도 넣어주자
+    1. 새로운 App 함수를 만들고 거기에 시간변환기 함수를 넣어주자
+        + 요렇게 -> <MinutesToHours />
+    2. 그리고 새로운 거리 변환기 함수를 만들어서 마찬가지로 App 함수에 넣어주자
+        + App 함수 내에서 알아서 render가 될 것
+    3. 사실 변환기 사이에서 선택을 하는 것이 맞기 때문에, SELECT 함수를 써보자
+        1. select를 div 안에 만들고, option도 만든다
+            * 여기까진 html임
+        2. option에 value(0,1)를 줘서 listen할 수 있게 만든다
+        3. select 값을 바꾸면(onChange) 실행할 함수(onSelect)를 만들어준다
+        4. React.useState를 하나 만들어주고, 이 modifier(setIndex)를 event.target.value를 갖고오도록 만들어서 함수 onSelect에 넣어준다
+        5. 나중에 쓰게 select에 value={index}를 넣어준다
+        6. 이제 실제 변환기 함수를 선택할 수 있도록 만들어준다
+            1. js를 쓰기 위해 {}안에 적는다
+                ```js
+                {index === "0" ? <MinutesToHours />: null}
+                {index === "1" ? <KmToMiles />: null}
+                ```
+* 거리 변환기는 알아서 만들어보자
+***
 4\) Props
 ---
 ***
