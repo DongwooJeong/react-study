@@ -349,9 +349,164 @@
 ***
 4\) Props
 ---
+### 4.0 Props
+* 로직을 고립시켜서 분리된 컴포넌트로 만들었음
+    - header, footer, notification bar 등등 모두가 각각의 로직을 가진 컴포넌트가 될 수 있음
+    - 전 강의에서 만든 거에서 App이 부모 컴포넌트였음
+* Prop을 배워보자
+    - Prop은 부모 컴포넌트로부터 자식 컴포넌트에 데이터를 보낼 수 있게 해주는 방법
+    - 이전 예시에서는 자식 컴포넌트(KmToMiles)가 부모 컴포넌트로부터 데이터를 받아올 필요가 없었음
+    - 일단 버튼을 몇 개 만들어보자
+        + 참고: function에서 return 할때 뒷부분 ()로 안 묶어주면 안 뜬다
+            * 추가 설명: return하고 그냥 엔터를 치면 안되고, ( 가 같은 줄에 있어야 되더라
+        + 두 가지 버튼을 만들었는데, 각 버튼의 style을 따로 만들어줄 필요가 없다면?
+* Prop 만드는 법
+    1. 일반적인 syntax처럼 렌더링하는 App(부모 컴포넌트)에 적어준다
+        ```html
+        <Btn text="Save Changes" />
+        ```
+        + 꼭 text일 필요는 없음. banana여도 됨
+    2. Btn 함수의 argument에(이게 prop) 새로 만든 property를 넣어줌
+        + 그럼 밑에서 렌더링을 할때 해당 property를 인자로 해서 함수를 실행시키게 됨
+        + prop의 값으로 함수 내의 다른 영역을 자유롭게 바꿀 수도 있음
+            ```html
+            <Btn big= {true} />
+            fontSize: big ? 18 : 15
+            ```
+
 ***
+### 4.1 Memo
+* 또 props에 뭘 보낼 수 있는지 알아보자
+    - 함수도 보낼 수 있음
+    - button에 onClick 함수 기능을 넣어보자
+        + state를 바꾸게 될 것
+            ```html
+            const [value, setValue] =React.useState("Save Changes");
+            const changeValue = () => setValue("Revert Changes");
+            <Btn text={value} onClick={changeValue} />
+            ```
+        + 밑에서 onClick을 만들어준건 **prop일 뿐**임
+            * props가 함수에 들어가서 실행될 때 비로소 event listener가 되는 것
+* React Memo (memorize)
+    - 문제점: console.log를 해서 봤을 때, Save Changes 버튼을 눌렀음에도 불구하고, state가 변하지 않는 두번째 버튼(continue)이 re-render 되는 현상을 발견함
+        + 우리는 이 컴포넌트가 다시 그려지는 것을 원하지 않음
+    - 해결책: props가 변경되지 않는 한에서 해당 컴포넌트가 다시 그려질지를 결정하기
+        ```html
+        const MemorizedBtn = React.memo(Btn)
+        ```
+    - MemorizedBtn은 Btn의 memorized version
+    - 결론: 부모 컴포넌트의 state가 변경된다면 모든 자식은 다 re-render되기 때문에, 이게 앱 속도 등에 영향을 줄수도 있음. 따라서 react memo를 활용해보자
+***
+### 4.2 Prop Types
+* 문제: props가 너무 많아져서 props를 쓰다가 실수함
+    - string을 넣어야 하는데 숫자를 넣는 실수
+* 해결책: PropTypes라는 패키지를 사용하자
+    - 패키지 설치
+        + https://unpkg.com/prop-types@15.7.2/prop-types.js
+    - Prop Types 설정하기
+        ```html
+        Btn.propTypes = {
+            text: PropTypes.string,
+            fontSize: PropTypes.number,
+        }
+        ```
+    - 그러면 type을 잘못 지정했을 때 console에서 경고 메시지 받을 수 있음
+    - 주의할 점
+        + https://unpkg.com/react@17.0.2/umd/react.development.js 로 리액트 패키지 바꿔줘야 함
+        + React memo와 같이 사용하고 있으면 Btn 대신에 MemorizedBtn이라고 써줘야 함
+    - optional이나 required와 같은 property도 줄 수 있음
+        ```html
+        Btn.propTypes = {
+            text: PropTypes.string.isRequired,
+        }
+        ```
+    - default value도 설정할 수 있음
+        + JavaScript가 설정해주는 기능
+        ```html
+        function Btn({ text, fontSize = 14 }) {}
+        ```
+***
+### 4.3 Recap
+* props 쓰는 방법
+    1. props.text, props.fontSize처럼 직접 넣기
+        1. 함수의 object에 props를 넣고
+        2. 함수 내부에 props.text처럼 넣기
+    2. ES6의 방식대로(우리가 한 방식) object에 중괄호로 넣기
+*** 
 5\) Create React App
 ---
+### 5.0 Introduction
+* create-react-app: react 어플리케이션을 만드는 최고의 방식
+    - 기존의 방식: 직접 script를 import하는 방식
+    - 장점
+        + 여러 사전 설정을 해줌
+        + 개발 서버에 접근
+        + 자동으로 새로고침
+            * **auto-reload(자동 재실행)**
+        + 즉각적으로 어플리케이션에 css를 포함시킴
+        + 웹사이트를 publish하는 command가 있음
+        + 코드를 압축해서 빠르게 만듦
+    - 어떻게 사용할까
+        1. node.js 설치
+            * 웹사이트에서 recommended 버전 설치
+                - cmd 창에서 아래의 커맨드로 설치 여부 확인
+                    + node -v
+                    + npx
+        2. code my-app(폴더명) 명령어로 vscode에서 만들어진 폴더 열기
+        3. package.json 확인하기
+            * script 부분에 우리가 사용할 수 있는 명령어들이 있음
+        4. terminal을 열어서 npm start 누르면 개발용 서버(development server)가 만들어짐
+            * 자동으로 웹페이지가 열림
+        5. src 폴더(모든 파일들이 들어갈 폴더)에서 index.js 찾기
+        6. 필요없는 css나 테스팅 코드랑 파일 지우기
+***
+### 5.1 Tour of CRA
+* create-react-app을 가지고 전에 했던 걸 만들어보자
+    1. 버튼을 만들 button.js 파일을 넣어주자
+        + 전에 만들었던 것처럼 버튼의 형식을 만들고, export하기
+        ```js
+            function Button({text}) {
+            return <button>{text}</button>;
+            }
+            export default Button;
+            ```
+    2. App.js에서 import하기
+        ```js
+        import Button from "./button";
+        ```
+    3. 전에 배웠던 버튼 만들기 그대로 해보자
+        1. App.js에 버튼 넣어주기
+        2. props(text)도 넣어주기
+        3. prop types 지정해주기
+            * npm i prop-types로 설치 먼저 해줘야 함
+    4. style을 설정해보자
+        * 특정 컴포넌트를 위한 CSS파일을 만들 수 있는 기능
+            1. css 파일을 따로 만들고 스타일을 설정해주고 index.js에서 import만 하면 됨
+                + 이렇게 하면 모든 버튼에 다 같은 style이 적용됨 (global CSS style)
+                + 한 CSS 파일에 엄청나게 많은 style이 생기는 문제 발생
+            2. style prop을 사용하기
+                ```js
+                <button 
+                    style={{
+                        backgroundColor: "tomato",
+                        color: "white"
+                    }}
+                >
+                    {text}
+                </button>
+                ```
+                + style을 하나하나 직접 넣어줘야 함
+        * 해결책: CSS modules
+            - divide and conquer
+                1. button.module.css 파일을 따로 만들기
+                2. css파일에 button으로 말고, class로 style을 설정해주기 
+                3. button.js에 import 시켜주기
+            ```js
+            import styles from "./button.module.css";
+            <button className={styles.btn}> {text} </button>
+            ```
+            - style을 modular하게 만드는 것
+            - element에서 inspect하면 랜덤 클라스를 만들어내서 사용하는 걸 볼 수 있음
 ***
 6\) Effects
 ---
