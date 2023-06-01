@@ -510,6 +510,202 @@
 ***
 6\) Effects
 ---
+### 6.0 Introduction
+* 원래 코드가 렌더링되는 방식
+    ```js
+    import { useState } from "react";
+
+    function App() {
+        const [counter, setValue] = useState(0);
+        const onClick = () => setValue((prev) => prev +1);
+        return (
+            <div>
+                <h1>{counter}</h1>
+                <button onClick = {onClick}>click me</button>
+            </div>
+        );
+    };
+    export default App;
+    ```
+    - create react app을 사용하고 있기 때문에 React.useState라고 적어줄 필요 없음
+    - rendering
+        + component가 처음 render됨
+        + render될 때마다 반복실행되는 코드가 있음
+            * component가 처음 render될 때만 코드가 실행되기를 원하는 경우
+                - state가 변화될 때는 코드가 render되지 않도록 만들어주고 싶은 경우
+                - ex. api를 불러올 때
+### 6.1 useEffect
+* useEffect
+    - 두 개의 argument를 가지는 function
+        1. 우리가 딱 한번만 실행하고 싶은 코드
+        2. (아직 비밀)
+    - 예시
+    ```js
+    import { useState, useEffect } from "react";
+
+    function App() {
+        const [counter, setValue] = useState(0);
+        const onClick = () => setValue((prev) => prev +1);
+        console.log("I run all the time");
+        const iRunOnlyOnce = () => {
+            console.log("I run only once.");
+        };
+        useEffect(iRunOnlyOnce, []);
+        /* useEffect(() => {
+            console.log("CALL THE API...");
+        }, []);*/
+        return (
+            <div>
+                <h1>{counter}</h1>
+                <button onClick = {onClick}>click me</button>
+            </div>
+        );
+    };
+    export default App;
+    ```
+        + useEffect 내의 함수는 처음에 딱 한번만 실행됨
+***
+### 6.2 Deps
+* 저번 단원 복습으로 useEffect를 사용하는 이유를 다시 한번 알아보자
+    ```js
+    import { useState, useEffect } from "react";
+
+    function App() {
+        const [counter, setValue] = useState(0);
+        const [keyword, setKeyword] = useState("");
+        const onClick = () => setValue((prev) => prev +1);
+        const onChange = (event) => setKeyword(event.target.value);
+        console.log("I run all the time");
+        useEffect(() => {
+            console.log("CALL THE API...");
+        }, []);
+        return (
+            <div>
+                <input 
+                    value={keyword}
+                    onChange={onChange}
+                    type="text" 
+                    placeholder="Search here..." 
+                />
+                <h1>{counter}</h1>
+                <button onClick = {onClick}>click me</button>
+            </div>
+        );
+    };
+    export default App;
+    ```
+    * input에 타이핑할 때마다 state를 modify하게 됨
+    * 해결방안
+    ```js
+    import { useState, useEffect } from "react";
+
+    function App() {
+        const [counter, setValue] = useState(0);
+        const [keyword, setKeyword] = useState("");
+        const onClick = () => setValue((prev) => prev +1);
+        const onChange = (event) => setKeyword(event.target.value);
+        console.log("I run all the time");
+        useEffect(() => {
+            console.log("CALL THE API...");
+        }, []);
+        useEffect(() => {
+            console.log("SEARCH FOR", keyword);
+        }, [keyword]);
+        return (
+            <div>
+                <input 
+                    value={keyword}
+                    onChange={onChange}
+                    type="text" 
+                    placeholder="Search here..." 
+                />
+                <h1>{counter}</h1>
+                <button onClick = {onClick}>click me</button>
+            </div>
+        );
+    };
+    export default App;
+    ```
+    - keyword가 변화할 때 코드를 실행할거라고 react.js에게 알려줌
+    - 다시 말해, useEffect의 첫번째 argument의 함수를 처음에 한번 실행하고, 두번째 argument가 변화할 때마다 첫번째 argument의 함수를 실행함
+    - 그럼 만약 첫번째 argument의 함수를 처음 시작할 때 실행하고 싶지 않은 경우는?
+    ```js
+    useEffect(() => {
+            if (keyword !== "" && keyword.length > 5) {
+                console.log("SEARCH FOR", keyword);
+            }  
+        }, [keyword]);
+    ```
+    - 6자를 입력했을 때(keyword의 길이가 5보다 커질 때)부터 실행
+    - 두번째 argument에 두 가지 이상 넣을 수 있음
+        + [keyword, counter]
+***
+### 6.3 Recap
+* react.js는 변화가 일어날 때마다 refresh를 해줌
+    + 시작시에만, 아니면 특정 데이터가 변화할 때만 등 특정 시점에서만 refresh를 하고 싶을 때 useEffect를 써줌
+***
+### 6.4 Cleanup
+* Cleanup function
+    - 많이 쓰는건 아님
+    ```js
+    import { useState, useEffect } from "react";
+
+    function Hello() {
+        useEffect(() => {
+            console.log("created :)");
+        }, []);
+        return <h1>Hello</h1>;
+    } //JSX를 return하는 function인 컴포넌트
+
+    function App() {
+        const [showing, setShowing] = useState(false);
+        const onClick = () => setShowing((prev) => !prev);
+        return (
+            <div>
+                {showing ? <Hello /> : null} // javascript를 쓸 때에는 중괄호로 묶어주고, JSX는 처음에 대문자로
+                <button onClick={onClick}>{showing ? "Hide" : "Show"}</button>
+            </div>
+        );
+    }
+    ```
+    - 이렇게 만들면, Show버튼을 눌렀을 때는 showing이 true가 돼서 버튼은 Hide가 되고 js에 따라 <Hello /> 컴포넌트가 실행이 됨
+    - Hide를 누르면 컴포넌트가 null이 돼서 remove하는 방식
+        + 다시 show를 누를 때마다 컴포넌트를 새로 만들게 되어 useEffect의 첫번째 argument의 함수도 실행됨
+        + 하지만 컴포넌트를 만들 때뿐만 아니라 null이 돼서 컴포넌트가 destroy될 때도 useEffect로 다른 함수를 실행시키고 싶은 경우
+    ```js
+    function Hello() {
+        useEffect(() => {
+            console.log("created :)");
+            return () => console.log("destroyed :(");
+        }, []);
+        return <h1>Hello</h1>;
+    }
+    ```
+    - Cleanup function: component가 destroy될 때 실행하는 함수
+    ```js
+    function Hello() {
+        function byeFn() {
+            console.log("bye :(");
+        }
+        function hiFn() {
+            console.log("created :)");
+            return byeFn;
+        }
+        useEffect(hiFn, []);
+        return <h1>Hello</h1>;
+    }
+    ```
+    - hiFn이 byeFn을 return하는 구조가 되어야 함
+    - Cleanup function을 자주 쓸 일이 없긴 함
+    ```js
+    useEffect(() => {
+        console.log("hi :)");
+        return () => {
+            console.log("bye :(");
+        }
+    }, []);
+    ```
+    - useEffect 안에 arrow function을 쓰는 방식을 더 선호함
 ***
 7\) Practice Movie App
 ---
