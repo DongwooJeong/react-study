@@ -534,6 +534,7 @@
             * component가 처음 render될 때만 코드가 실행되기를 원하는 경우
                 - state가 변화될 때는 코드가 render되지 않도록 만들어주고 싶은 경우
                 - ex. api를 불러올 때
+***
 ### 6.1 useEffect
 * useEffect
     - 두 개의 argument를 가지는 function
@@ -709,4 +710,56 @@
 ***
 7\) Practice Movie App
 ---
+### 7.0 To Do List part One
+* 항상 개발 서버를 열고 npm start를 해서 작업하자 (ch5 참조)
+* To Do List 만들기 실습하기
+    1. input 받고 버튼 만들기
+    2. submit 버튼 관련 함수 만들기
+    3. 여러 개의 todo를 받을 array 만들기
+        + toDos array에 값을 넣을 때 toDos.push를 썼었지만 여기서는 toDos가 State이기 때문에 modifier를 이용해서 수정해야지, State를 직접적으로 수정하지 말자
+        + 이전의 array에 새로운 value를 추가하는 방법
+            ```js
+            const num = [1, 2, 3, 4]
+            [5, num]
+            // [5, Array(4)]
+            [6, ...num]
+            // [5, 1, 2, 3, 4]
+            ```
+    4. 제목 넣기 
+        + todos의 item 수를 보여주기
+***
+### 7.1 To Do List part Two
+* modifier의 두 가지 옵션
+    1. 값을 보내기
+    2. 함수를 보내기
+        + 첫번째 argument로 현재 state를 보냄(currentArray)
+        + 이 현재 State를 계산하거나 새로운 State를 만드는데 사용
+* array의 item을 화면에 출력해보자
+    1. map을 이용해서 array의 item들을 <li>로 나타냄
+        + map: () 안의 함수를 array의 모든 item에 대해서 실행하여 새로운 array에 저장함
+        + 오류: 같은 component의 list를 render할 때 key라는 prop을 넣어라
+            * react가 기본적으로 list에 있는 모든 item들을 인식하기 때문임
+            * 해결: <li>에 key를 넣어주면 됨
+### 7.2 Coin Tracker
+* 암호화폐와 그 가격을 나열해보자
+    - 페이지를 들어왔을 때 loading message가 보임
+    - 코인들이 나열되면 loading message를 숨기고 코인을 리스트로 보여줌
+    1. boolean을 가지는 state를 이용해서 loading message를 띄우기
+    2. API 가져오기
+        - https://api.coinpaprika.com/v1/tickers
+        - effect를 써서 tickers를 가져오기
+            + 우리가 rendering할 때마다 api를 새로 가져오지 않게 하기 위해
+        - console에 Network에서 새로고침하면 tickers를 request 하고 있는 걸 확인할 수 있음
+    3. response로부터 json을 추출하기
+        - .then()으로 response를 가져옴
+        - 새로운 state인 coins에 modifier인 setCoins로 json(코인 값들)을 저장
+        - Loading도 null 뜨도록 modifier 활용해서 state 바꾸기
+    4. 화면에 <li>로 출력하기
+        - 전에 todo list처럼 map() 활용
+* coins의 state에 empty array로 default value를 넣는 이유
+    - 처음에 load했을 때 undefined이기 때문에 h1에서 .length를 했을때 에러가 발생함
+* challenge: 환전시키기
+    - ul을 select, li를 option으로 바꾸기
+    - loading 부분 수정
+        + loading할 때는 h1의 괄호와 숫자, select를 안 보여주도록 만들기
 ***
