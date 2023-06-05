@@ -740,6 +740,7 @@
         + 오류: 같은 component의 list를 render할 때 key라는 prop을 넣어라
             * react가 기본적으로 list에 있는 모든 item들을 인식하기 때문임
             * 해결: <li>에 key를 넣어주면 됨
+***
 ### 7.2 Coin Tracker
 * 암호화폐와 그 가격을 나열해보자
     - 페이지를 들어왔을 때 loading message가 보임
